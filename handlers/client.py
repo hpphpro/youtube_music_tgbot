@@ -17,23 +17,27 @@ async def music_menu(message: types.Message):
     await message.answer('Select button below', reply_markup=music_menu_keyboard)
   
 async def search_by_title(message: types.Message):
-    await message.answer('Enter a title that you want to find')
+    await message.answer('Enter a title that you want to find', reply_markup=ReplyKeyboardRemove())
     await SM.music_by_title.set()
 
 async def search_by_url(message: types.Message):
-    await message.answer('Enter a youtube url.\nIf you want to drop your action -> enter <b>stop</b>')
+    await message.answer('Enter a youtube url.\nIf you want to drop your action -> enter <b>stop</b>', reply_markup=ReplyKeyboardRemove())
     await SM.music_by_url.set()
 
 async def download_by_url(message: types.Message, state: FSMContext):
     answer = message.text
     user_id = message.from_user.id
+    if answer.lower() == '/start':
+        await message.answer('Click if you want restart -> /start', reply_markup=ReplyKeyboardRemove())
+        return await state.finish()
+    
     if answer.lower() == 'stop':
         await message.answer('If you want to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
         return await state.finish()
 
     if 'youtube.com' in answer or 'youtu.be' in answer:
         path = ROOT_DIR / str(user_id)
-        await message.answer('Searching... it may take some time')
+        await message.answer('Searching... it may take some time', reply_markup=ReplyKeyboardRemove())
         download(url=answer, path=user_id)
         for name in os.listdir(path):
             if name.endswith('.mp3'):
@@ -51,10 +55,15 @@ async def download_by_url(message: types.Message, state: FSMContext):
 
 async def get_music_by_title(message: types.Message, state: FSMContext):
     answer = message.text
-    await message.answer('Searching...')
+    if answer.lower() == '/start':
+        await message.answer('Click if you want restart -> /start', reply_markup=ReplyKeyboardRemove())
+        return await state.finish()
+    
     if answer.lower() == 'stop':
         await message.answer('If you want to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
         return await state.finish()
+    
+    await message.answer('Searching...')
     track_list = await search(title=answer)
     index = 1
     for track in track_list:
