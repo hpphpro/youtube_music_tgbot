@@ -13,16 +13,20 @@ from create_bot import bot
 from config import ROOT_DIR
 
 
+
 async def music_menu(message: types.Message):
     await message.answer('Select button below', reply_markup=music_menu_keyboard)
+  
   
 async def search_by_title(message: types.Message):
     await message.answer('Enter a title that you want to find', reply_markup=ReplyKeyboardRemove())
     await SM.music_by_title.set()
 
+
 async def search_by_url(message: types.Message):
     await message.answer('Enter a youtube url.\nIf you want to drop your action -> enter <b>stop</b>', reply_markup=ReplyKeyboardRemove())
     await SM.music_by_url.set()
+
 
 async def download_by_url(message: types.Message, state: FSMContext):
     answer = message.text
@@ -38,7 +42,7 @@ async def download_by_url(message: types.Message, state: FSMContext):
     if 'youtube.com' in answer or 'youtu.be' in answer:
         path = ROOT_DIR / str(user_id)
         await message.answer('Searching... it may take some time', reply_markup=ReplyKeyboardRemove())
-        download(url=answer, path=user_id)
+        await download(url=answer, path=user_id)
         for name in os.listdir(path):
             if name.endswith('.mp3'):
                 file = f'{path}/{name}'
@@ -46,12 +50,13 @@ async def download_by_url(message: types.Message, state: FSMContext):
                 break
 
         if os.path.exists(path):
-            clear(path=path)
+            await clear(path=path)
 
         await message.answer('Do you want to do something else?', reply_markup=continueation_keyboard)
         return await state.finish()
     else:
         await message.answer('Please enter youtube link')
+
 
 async def get_music_by_title(message: types.Message, state: FSMContext):
     answer = message.text
@@ -76,6 +81,7 @@ async def get_music_by_title(message: types.Message, state: FSMContext):
     Data.track_list = track_list
     await SM.music_by_titlev2.set()
 
+
 async def download_by_choice(message: types.Message, state: FSMContext):
     answer = message.text
     if answer.lower() == 'stop':
@@ -90,7 +96,7 @@ async def download_by_choice(message: types.Message, state: FSMContext):
     path = ROOT_DIR / str(user_id)
     try:
         await message.answer('Downloading... it may take some time')
-        download(url=track_list[int(answer) - 1], path=user_id)
+        await download(url=track_list[int(answer) - 1], path=user_id)
         for name in os.listdir(path):
             if name.endswith('.mp3'):
                 os.rename(f'{path}/{name}', f'{path}/{track_list_dict[track_list[int(answer) - 1]]}.mp3')
@@ -99,13 +105,13 @@ async def download_by_choice(message: types.Message, state: FSMContext):
         await bot.send_audio(message.chat.id, audio=open(file, 'rb'))
     except Exception:
         if os.path.exists(path):
-            clear(path=path)
+            await clear(path=path)
         await message.answer('Got unexpected issue, to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
         return await state.finish()
 
     Data.track_list = None
     if os.path.exists(path):
-        clear(path=path)
+        await clear(path=path)
 
     await message.answer('Do you want to do something else?', reply_markup=continueation_keyboard)
     return await state.finish()

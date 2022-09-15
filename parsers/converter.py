@@ -6,6 +6,7 @@ import shutil
 
 from config import ROOT_DIR
 from ffmpeg import ffmpeg
+from utils import sync_to_async
 
 
 class Converter:
@@ -37,10 +38,11 @@ class Converter:
         os.rename(f'{name}.mp3', f'{base}.mp3')
  
   
-    
+@sync_to_async
 def download(url: str, path: str) -> None:
     Converter(url=url, path=path)
-
+    
+@sync_to_async
 def clear(path):
     shutil.rmtree(path)
     

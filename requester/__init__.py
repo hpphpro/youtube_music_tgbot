@@ -27,8 +27,8 @@ class Request(metaclass=Singleton):
         - Do not try to use 1000/2000/etc step value (but it may work)
         remember, we should be nice to the server
         Usage:
-            Request().fetch('https://google.com') -> to get single site data
-            Request().collect_data(['https://google.com', 'https://youtube.com']) -> to get a list with sites data
+            - Request().fetch('https://google.com') -> to get single site data
+            - Request().collect_data(['https://google.com', 'https://youtube.com']) -> to get a list with sites data
     """
     def __init__(self, step: int = 10) -> None:
         self.step = step 
@@ -88,7 +88,6 @@ class Request(metaclass=Singleton):
     
     async def _collect_tasks(self, urls: list | tuple, method: str = 'get', json_data: bool = False, **options) -> AsyncGenerator[list[Response], Any]:
         """
-
         Args:
             urls (list | tuple): a urls that data you want to get from
             method (str, optional): same to .fetch() method

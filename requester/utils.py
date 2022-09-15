@@ -2,6 +2,7 @@ from typing import NamedTuple
 
 from random import choice
   
+  
 def get_useragent() -> str:
     """Getting random useragent at start"""
     user_agents_list = (
@@ -14,6 +15,7 @@ def get_useragent() -> str:
     )  
     
     return choice(user_agents_list)
+
 
 class Response(NamedTuple):
     request_url: str 
