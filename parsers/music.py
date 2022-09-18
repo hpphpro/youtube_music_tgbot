@@ -9,6 +9,10 @@ from requester.utils import Response
 from utils.logger import info
 
 
+__all__ = [
+    'search'
+]
+
 class YoutubeSearch:
     '''Basic youtube searching'''
     _api = 'https://www.youtube.com/results?search_query='
@@ -57,7 +61,7 @@ class YoutubeSearch:
                     title = video_data['title'].get('simpleText')
 
                 if video_data:
-                    url = 'https://www.youtube.com' + video_data['navigationEndpoint']['commandMetadata']['webCommandMetadata'].get('url')
+                    url = 'https://www.youtube.com' + video_data['navigationEndpoint']['commandMetadata']['webCommandMetadata'].get('url').strip()
                     fetched_data[url] = title
         except KeyError as key:
             info(f'Got an issue {key} key is not defind')

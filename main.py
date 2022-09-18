@@ -1,13 +1,12 @@
 from aiogram import executor
 
-from handlers import client, commands, handler_register
-from create_bot import dp
+from handlers import client, commands, other
+from loader import dp
 
-commands.handler_register(dp=dp)
-handler_register(dp=dp)
+
 client.handler_register(dp=dp)
-
-
+other.handler_register(dp=dp)
+commands.handler_register(dp=dp)
 
     
 

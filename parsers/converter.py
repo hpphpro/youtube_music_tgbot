@@ -9,6 +9,12 @@ from ffmpeg import ffmpeg
 from utils import sync_to_async
 
 
+__all__ = [
+    'download',
+    'clear'
+]
+
+
 class Converter:
     '''A class that simply converting audio_file to mp3'''
     def __init__(self, url: str, path: str) -> None:
@@ -43,6 +49,6 @@ def download(url: str, path: str) -> None:
     Converter(url=url, path=path)
     
 @sync_to_async
-def clear(path):
+def clear(path: str) -> None:
     shutil.rmtree(path)
     
