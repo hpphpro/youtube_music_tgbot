@@ -61,7 +61,7 @@ class YoutubeSearch:
                     title = video_data['title'].get('simpleText')
 
                 if video_data:
-                    url = 'https://www.youtube.com' + video_data['navigationEndpoint']['commandMetadata']['webCommandMetadata'].get('url').strip()
+                    url = 'https://www.youtube.com' + video_data['navigationEndpoint']['commandMetadata']['webCommandMetadata'].get('url')
                     fetched_data[url] = title
         except KeyError as key:
             info(f'Got an issue {key} key is not defind')

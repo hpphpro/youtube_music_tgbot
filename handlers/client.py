@@ -1,3 +1,4 @@
+from cmath import inf
 from aiogram import types, Dispatcher
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.dispatcher.filters import Text
@@ -45,19 +46,24 @@ async def download_by_url(message: types.Message, state: FSMContext):
         and 'youtube.com' in answer or 'youtu.be' in answer:
             
         path = ROOT_DIR / str(user_id)
-        await message.answer('Searching... it may take some time', reply_markup=ReplyKeyboardRemove())
-        await download(url=answer, path=user_id)
-        for name in os.listdir(path):
-            if name.endswith('.mp3'):
-                file = f'{path}/{name}'
-                await bot.send_audio(message.chat.id, audio=open(file, 'rb'))
-                break
-
-        if os.path.exists(path):
-            await clear(path=path)
-
-        await message.answer('Do you want to do something else?', reply_markup=continuation_keyboard)
-        return await state.finish()
+        try:
+            await message.answer('Searching... it may take some time', reply_markup=ReplyKeyboardRemove())
+            await download(url=answer, path=user_id)
+            for name in os.listdir(path):
+                if name.endswith('.mp3'):
+                    file = f'{path}/{name}'
+                    await bot.send_audio(message.chat.id, audio=open(file, 'rb'))
+                    break
+        except Exception as ex:
+            info(ex)
+            await message.answer('Got unexpected issue, to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
+            return await state.finish()
+        else:
+            await message.answer('Do you want to do something else?', reply_markup=continuation_keyboard)
+            return await state.finish()
+        finally:
+            if os.path.exists(path):
+                await clear(path=path)
     else:
         await message.answer('Please enter youtube link')
 
@@ -118,18 +124,15 @@ async def download_by_choice(call: types.CallbackQuery, state: FSMContext):
         file = f'{path}/{track_list_dict[track_list[answer - 1]]}.mp3'
         await bot.send_audio(call.message.chat.id, audio=open(file, 'rb'))
     except Exception as ex:
-        if os.path.exists(path):
-            await clear(path=path)
         info(ex)
         await call.message.answer('Got unexpected issue, to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
         return await state.finish()
-
-    if os.path.exists(path):
-        await clear(path=path)
-
-    await call.message.answer('Do you want to do something else?', reply_markup=continuation_keyboard)
-    return await state.finish()
-    
+    else:
+        await call.message.answer('Do you want to do something else?', reply_markup=continuation_keyboard)
+        return await state.finish()
+    finally:
+        if os.path.exists(path):
+            await clear(path=path)
 
 
 def handler_register(dp: Dispatcher):
