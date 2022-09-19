@@ -24,6 +24,6 @@ async def back_to_menu(message: types.Message):
 
 
 
-def handler_register(dp: Dispatcher) -> None:
+async def handler_register(dp: Dispatcher) -> None:
     dp.register_message_handler(continues, Text(equals=('Yes', 'No')))
     dp.register_message_handler(back_to_menu, Text(equals='back'))
