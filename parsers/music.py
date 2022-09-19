@@ -9,10 +9,6 @@ from requester.utils import Response
 from utils.logger import info
 
 
-__all__ = [
-    'search'
-]
-
 class YoutubeSearch:
     '''Basic youtube searching'''
     _api = 'https://www.youtube.com/results?search_query='
@@ -22,9 +18,9 @@ class YoutubeSearch:
         
         track_name = title.strip().replace('  ', ' ').replace(' ', '+')
         track_name = quote(track_name, safe='+()', encoding='utf-8') # quoting url 
-        cls._api = f'{cls._api}{track_name}'
+        url = f'{cls._api}{track_name}'
 
-        response_data = await Request().fetch(url=cls._api)  # getiing response content
+        response_data = await Request().fetch(url=url)  # getiing response content
         data = cls.get_json(response=response_data)
 
         return cls.get_data(data=data)
@@ -68,5 +64,5 @@ class YoutubeSearch:
         else:
             return fetched_data
 
-async def search(title: str) -> dict:
+async def search(title: str) -> YoutubeSearch[dict]:
     return await YoutubeSearch.search(title=title)

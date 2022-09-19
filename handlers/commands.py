@@ -11,17 +11,14 @@ async def start(message: types.Message):
 
 
 async def state_stop(message: types.Message):
-    answer = message.text
     state = Dispatcher.get_current().current_state()
-    if answer.lower() in ('/stop', 'stop'):
-        await message.answer('If you want to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
-        return await state.finish()
-    elif answer == '/start':
-        await message.answer('Select button below', reply_markup=menu_keyboard)
-        return await state.finish()
+    await message.answer('If you want to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
+    return await state.finish()
+    
 
 
 def handler_register(dp: Dispatcher):
     dp.register_message_handler(start, commands=['start'])
+    dp.register_message_handler(state_stop, commands=['stop', 'cancel'], state='*')
     
     

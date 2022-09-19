@@ -12,7 +12,6 @@ from parsers import download, clear, search
 from utils import StateMachine
 from loader import bot
 from config import ROOT_DIR
-from handlers import commands
 from utils.logger import info
 
 
@@ -37,15 +36,13 @@ async def search_by_url(message: types.Message):
 async def download_by_url(message: types.Message, state: FSMContext):
     
     answer = message.text
-    user_id = message.from_user.id
+    user_id = str(message.from_user.id)
     message_type: list[dict] = message.entities
     
-    if answer.lower() in ('/stop', '/start', 'stop'):
-        return await commands.state_stop(message=message)
     if message_type and [True for d in message_type if d['type'] == 'url']\
         and 'youtube.com' in answer or 'youtu.be' in answer:
             
-        path = ROOT_DIR / str(user_id)
+        path = ROOT_DIR / user_id
         try:
             await message.answer('Searching... it may take some time', reply_markup=ReplyKeyboardRemove())
             await download(url=answer, path=user_id)
@@ -72,8 +69,7 @@ async def get_music_by_title(message: types.Message, state: FSMContext):
     
     answer = message.text
     message_type: list[dict] = message.entities
-    if answer.lower() in ('/stop', '/start', 'stop'):
-        return await commands.state_stop(message=message)
+
     
     if message_type and [True for d in message_type if d['type'] == 'url']:
         await message.answer('Enter a title please, not link')    
@@ -81,19 +77,20 @@ async def get_music_by_title(message: types.Message, state: FSMContext):
         track_list = await search(title=answer)
         
         
-        chosen_message_id = []
+        choose_message_id = []
         for index, track in enumerate(track_list, start=1):
             msg = await message.answer(
                 f'Track №{index}\n{track}',
                 reply_markup=inline_button(text='Download', callback=index)
                 )
-            chosen_message_id.append(msg.message_id)
+            choose_message_id.append(msg.message_id)
+    
+        msg = await message.answer('Choose what you want to download.\nIf you want to drop your action -> enter <b>/stop</b>')
+        choose_message_id.append(msg.message_id)
         
         async with state.proxy() as data:
             data['track_list'] = track_list
-            data['track_id_list'] = chosen_message_id
-            
-        await message.answer('Choose what you want to download.\nIf you want to drop your action -> enter <b>/stop</b>')
+            data['track_id_list'] = choose_message_id
     
         await StateMachine.music_by_title_v2.set()
 
@@ -101,28 +98,29 @@ async def get_music_by_title(message: types.Message, state: FSMContext):
 async def download_by_choice(call: types.CallbackQuery, state: FSMContext):
     
     answer = int(call.data)
-    user_id = call.id 
+    user_id = str(call.id) 
     state_data = await state.get_data()
     track_id_list = state_data['track_id_list']
     track_list_dict = state_data['track_list']
     track_list = tuple(track_list_dict)
-  
+
 
     for message_id in track_id_list:
         await bot.delete_message(chat_id=call.message.chat.id, message_id=message_id)
         
             
-    path = ROOT_DIR / str(user_id)
+    path = ROOT_DIR / user_id
     try:
+        url = track_list[answer - 1]
         await call.message.answer('Downloading... it may take some time')
-        await download(url=track_list[answer - 1], path=user_id)
-        
+        await download(url=url, path=user_id)
+        filename = track_list_dict[url]
         for name in os.listdir(path):
             if name.endswith('.mp3'):
-                os.rename(f'{path}/{name}', f'{path}/{track_list_dict[track_list[answer - 1]]}.mp3')
+                os.rename(f'{path}/{name}', f'{path}/{filename}.mp3')
                 break
-        file = f'{path}/{track_list_dict[track_list[answer - 1]]}.mp3'
-        await bot.send_audio(call.message.chat.id, audio=open(file, 'rb'))
+        file = f'{path}/{filename}.mp3'
+        await bot.send_audio(call.message.chat.id, audio=open(file, 'rb'), title=f'{filename}.mp3')
     except Exception as ex:
         info(ex)
         await call.message.answer('Got unexpected issue, to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
