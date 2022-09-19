@@ -1,4 +1,3 @@
-from cmath import inf
 from aiogram import types, Dispatcher
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.dispatcher.filters import Text
