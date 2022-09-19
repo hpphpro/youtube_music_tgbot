@@ -133,7 +133,7 @@ async def download_by_choice(call: types.CallbackQuery, state: FSMContext):
             await clear(path=path)
 
 
-def handler_register(dp: Dispatcher):
+async def handler_register(dp: Dispatcher):
     dp.register_message_handler(music_menu, Text(equals='Youtube Music'))
     dp.register_message_handler(search_by_title, Text(equals='Download by title'))
     dp.register_message_handler(get_music_by_title, state=StateMachine.music_by_title)

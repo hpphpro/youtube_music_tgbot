@@ -17,7 +17,7 @@ async def state_stop(message: types.Message):
     
 
 
-def handler_register(dp: Dispatcher):
+async def handler_register(dp: Dispatcher):
     dp.register_message_handler(start, commands=['start'])
     dp.register_message_handler(state_stop, commands=['stop', 'cancel'], state='*')
     
