@@ -64,5 +64,5 @@ class YoutubeSearch:
         else:
             return fetched_data
 
-async def search(title: str) -> YoutubeSearch[dict]:
+async def search(title: str) -> dict:
     return await YoutubeSearch.search(title=title)
