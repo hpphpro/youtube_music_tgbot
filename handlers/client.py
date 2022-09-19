@@ -39,9 +39,6 @@ async def download_by_url(message: types.Message, state: FSMContext):
     user_id = str(message.from_user.id)
     message_type: list[dict] = message.entities
     
-    if answer in ('/stop', '/cancel'):
-        await message.answer('If you want to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
-        return await state.finish()
     
     if message_type and [True for d in message_type if d['type'] == 'url']\
         and 'youtube.com' in answer or 'youtu.be' in answer:
@@ -74,9 +71,6 @@ async def get_music_by_title(message: types.Message, state: FSMContext):
     answer = message.text
     message_type: list[dict] = message.entities
 
-    if answer in ('/stop', '/cancel'):
-        await message.answer('If you want to start again -> enter /start', reply_markup=ReplyKeyboardRemove())
-        return await state.finish()
     
     if message_type and [True for d in message_type if d['type'] == 'url']:
         await message.answer('Enter a title please, not link')    
